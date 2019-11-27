@@ -8,26 +8,32 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.solist.Adapter.ListAdapter;
 import com.example.solist.Decorator.OneDayDecorator;
-import com.example.solist.Decorator.SaturdayDecorator;
-import com.example.solist.Decorator.SundayDecorator;
+import com.example.solist.Util.EditCustomDialog;
 import com.example.solist.R;
+import com.example.solist.Database.ListVO;
+import com.example.solist.Util.ClearEditText;
+import com.example.solist.ViewModel.ListViewModel;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.util.Calendar;
-
-import io.realm.Realm;
 
 
 /**
@@ -83,12 +89,15 @@ public class ListFragment extends Fragment {
     }
 
     private LinearLayout layout;
-    private Realm realm;
 
     private MaterialCalendarView materialCalendarView;
     private OneDayDecorator oneDayDecorator = new OneDayDecorator();
-    private SaturdayDecorator saturdayDecorator = new SaturdayDecorator();
-    private SundayDecorator sundayDecorator = new SundayDecorator();
+    //private SaturdayDecorator saturdayDecorator = new SaturdayDecorator();
+    //private SundayDecorator sundayDecorator = new SundayDecorator();
+
+    private DividerItemDecoration dividerItemDecoration;
+
+    private ListViewModel listViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,28 +108,74 @@ public class ListFragment extends Fragment {
         // calendar view set
         setCalendarView();
 
-        realm = Realm.getDefaultInstance();
-
         // recycler view set
         RecyclerView recyclerView = layout.findViewById(R.id.list_recycler_view);
 
         // LayoutManager 를 통해서 LinearLayout 의 VERTICAL 로 정해준다.
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setHasFixedSize(true);
 
         // RecyclerView 를 Adapter 생성 후 연결해준다.
-        ListAdapter adapter = new ListAdapter();
+        ListAdapter adapter = new ListAdapter(getContext());
+        // 갱신할 때 화면 깜빡임 없애기
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
 
+        // listViewModel 을 가져온다.
+        listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
+        // LiveData 를 통해서 자동으로 리스트를 갱신시켜준다.
+        listViewModel.getAllLists().observe(this, listVOS -> adapter.setLists(listVOS) );
+
+        // 왼쪽이나 오른쪽으로 슬라이드를 하게되면 삭제가 된다.
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                listViewModel.delete(adapter.getListAt(viewHolder.getAdapterPosition()));
+                Toast.makeText(getContext(), "list deleted", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
+
+        // List 를 입력하는 부분
+        ClearEditText inputEditText = (ClearEditText) layout.findViewById(R.id.input_editText);
+        ImageButton addListButton = (ImageButton) layout.findViewById(R.id.input_button);
+        addListButton.setOnClickListener(v -> {
+            ListVO listVO = new ListVO(inputEditText.getText().toString(), "ing", "2019-11-27");
+            listViewModel.insert(listVO);
+            inputEditText.setText("");
+            inputEditText.clearFocus();
+            onHideKeyboard(getContext(), inputEditText);
+        });
+
+        // 아이템 클릭하면 수정하는 Dialog 가 나오게 된다.
+        adapter.setOnItemClickListener(listVO -> {
+            EditCustomDialog dialog = new EditCustomDialog(getContext());
+            dialog.callFunction(listVO, listViewModel);
+        });
+
+        // layout 을 클릭하면 editText 창이 사라진다.
+        layout.setOnClickListener(v -> { onHideKeyboard(getContext(), inputEditText); });
+
         return layout;
+    }
+
+    // 입력창에서 밖을 클릭했을 때 키보드 사라지게 만들기
+    public void onHideKeyboard(Context context, EditText editText) {
+        InputMethodManager mInputMethodManager = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
+        mInputMethodManager.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 
     private void setCalendarView() {
         Log.d(TAG, "onCreateView: CALENDAR VIEW START");
 
         materialCalendarView = layout.findViewById(R.id.calendarView);
-        materialCalendarView.clearSelection();
+        //materialCalendarView.clearSelection();
         materialCalendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setMinimumDate(CalendarDay.from(1999, 0, 1))
@@ -128,13 +183,14 @@ public class ListFragment extends Fragment {
                 .setCalendarDisplayMode(CalendarMode.WEEKS)
                 .commit();
 
+        // 오늘 날짜 굵은 글씨체로 표시하기
         materialCalendarView.addDecorator(oneDayDecorator);
         // 일요일 토요일 색 넣기
         //materialCalendarView.addDecorators(oneDayDecorator, sundayDecorator, saturdayDecorator);
         // 오늘 날짜를 선택한 상태로 시작
         materialCalendarView.setSelectedDate(CalendarDay.today());
         // 날짜 클릭 이벤트
-        materialCalendarView.setOnDateChangedListener((materialCalendarView1, date, b) -> {
+        materialCalendarView.setOnDateChangedListener((MaterialCalendarView materialCalendarView, CalendarDay date, boolean b) -> {
             int Year = date.getYear();
             int Month = date.getMonth() + 1;
             int Day = date.getDay();
@@ -145,9 +201,6 @@ public class ListFragment extends Fragment {
             } else {
                 selectedDate = Year + "-" + Month + "-" + Day;
             }
-
-            // 선택 초기화
-            //materialCalendarView.clearSelection();
 
             Toast.makeText(getContext(), selectedDate, Toast.LENGTH_SHORT).show();
         });

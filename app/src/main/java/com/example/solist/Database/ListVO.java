@@ -1,11 +1,25 @@
-package com.example.solist.Model;
+package com.example.solist.Database;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "list_table")
 public class ListVO {
 
+    @PrimaryKey(autoGenerate = true)
     private int id;
+
     private String contents;
+
     private String status;
+
     private String writeDate;
+
+    public ListVO(String contents, String status, String writeDate) {
+        this.contents = contents;
+        this.status = status;
+        this.writeDate = writeDate;
+    }
 
     public int getId() {
         return id;
@@ -37,5 +51,14 @@ public class ListVO {
 
     public void setWriteDate(String writeDate) {
         this.writeDate = writeDate;
+    }
+
+    @Override
+    public String toString() {
+        return "id=" + id +
+                ", contents='" + contents + '\'' +
+                ", status='" + status + '\'' +
+                ", writeDate='" + writeDate + '\'' +
+                '}' + "\n";
     }
 }

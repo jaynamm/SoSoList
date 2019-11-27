@@ -4,7 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="@color/empty"
     android:orientation="vertical"
+    android:padding="8dp"
     tools:context=".View.ListFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -12,16 +16,49 @@
     <com.prolificinteractive.materialcalendarview.MaterialCalendarView
         android:id="@+id/calendarView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        app:mcv_calendarMode="week"
+        app:mcv_tileSize="55dp"
         app:mcv_selectionColor="@color/darkGray"
-        app:mcv_showOtherDates="defaults"
-        app:mcv_tileHeight="36dp" />
+        app:mcv_showOtherDates="defaults" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:overScrollMode="never"
-        tools:listitem="@layout/item_list"/>
+        tools:listitem="@layout/item_list" />
+
+    <LinearLayout
+        android:id="@+id/inputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="3dp"
+        app:layout_constraintTop_toBottomOf="@+id/list_recycler_view">
+
+        <com.example.solist.Util.ClearEditText
+            android:id="@+id/input_editText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dp"
+            android:layout_weight="5"
+            android:background="@drawable/round_border_edit_text"
+            android:padding="6dp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/input_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="#00FFFFFF"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_send_black_24dp" />
+
+    </LinearLayout>
 
 </LinearLayout>
