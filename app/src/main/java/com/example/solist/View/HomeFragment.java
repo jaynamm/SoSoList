@@ -7,6 +7,9 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -15,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.solist.Adapter.HomeAdapter;
+import com.example.solist.Adapter.ListAdapter;
 import com.example.solist.R;
 import com.example.solist.ViewModel.ListViewModel;
 
@@ -72,6 +77,7 @@ public class HomeFragment extends Fragment {
 
     private LinearLayout layout;
     private ListViewModel listViewModel;
+    private DividerItemDecoration dividerItemDecoration;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,6 +92,26 @@ public class HomeFragment extends Fragment {
         listViewModel.getAllLists().observe(this, listVOS -> {
             getDataView.setText(listVOS.toString());
         });
+
+        // recycler view set
+        RecyclerView recyclerView = layout.findViewById(R.id.list_recycler_view_home);
+
+        // LayoutManager 를 통해서 LinearLayout 의 VERTICAL 로 정해준다.
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setHasFixedSize(true);
+
+        // RecyclerView 를 Adapter 생성 후 연결해준다.
+        HomeAdapter adapter = new HomeAdapter(getContext());
+        // 갱신할 때 화면 깜빡임 없애기
+        adapter.setHasStableIds(true);
+        recyclerView.setAdapter(adapter);
+
+        // listViewModel 을 가져온다.
+        listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
+        // LiveData 를 통해서 자동으로 리스트를 갱신시켜준다.
+        listViewModel.getUnfinishedData().observe(this, listVOS -> adapter.setLists(listVOS) );
 
         return layout;
     }

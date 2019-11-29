@@ -33,7 +33,10 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 
 /**
@@ -99,6 +102,8 @@ public class ListFragment extends Fragment {
 
     private ListViewModel listViewModel;
 
+    private String selectedDate;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -146,19 +151,39 @@ public class ListFragment extends Fragment {
         ClearEditText inputEditText = (ClearEditText) layout.findViewById(R.id.input_editText);
         ImageButton addListButton = (ImageButton) layout.findViewById(R.id.input_button);
         addListButton.setOnClickListener(v -> {
-            ListVO listVO = new ListVO(inputEditText.getText().toString(), "ing", "2019-11-27");
+            int status = 1;
+            ListVO listVO = new ListVO(inputEditText.getText().toString(), status, getInputDate());
             listViewModel.insert(listVO);
             inputEditText.setText("");
             inputEditText.clearFocus();
             onHideKeyboard(getContext(), inputEditText);
         });
 
-        // 아이템 클릭하면 수정하는 Dialog 가 나오게 된다.
-        adapter.setOnItemClickListener(listVO -> {
-            EditCustomDialog dialog = new EditCustomDialog(getContext());
-            dialog.callFunction(listVO, listViewModel);
-        });
+        adapter.setOnStatusClickListener(new ListAdapter.ListAdapterClickListener() {
+            // 아이템 클릭하면 수정하는 Dialog 가 나오게 된다.
+            @Override
+            public void onItemClick(ListVO listVO) {
+                EditCustomDialog dialog = new EditCustomDialog(getContext());
+                dialog.callFunction(listVO, listViewModel);
+            }
+            // 리스너를 통해서 status 를 클릭하면 변경되게 한다. 0 = 완료 , 1 = 진행중 , 2 = 보류
+            @Override
+            public void onStatusClick(ListVO listVO) {
+                // 현재 상태 값을 가져온다.
+                int getStat = listVO.getStatus();
+                // 0 1 2 0 1 2  숫자를 증가시켜 반복되게 만들어준다.
+                getStat++;
+                // 0~2 의 숫자가 오기 때문에 2보다 크면 0으로 초기화 시켜준다.
+                if(getStat > 2) getStat = 0;
 
+                Toast.makeText(getContext(), "change status : " + getStat, Toast.LENGTH_SHORT).show();
+
+                // 다시 넣은 후 update 해준다.
+                listVO.setStatus(getStat);
+                listViewModel.update(listVO);
+            }
+        });
+        
         // layout 을 클릭하면 editText 창이 사라진다.
         layout.setOnClickListener(v -> { onHideKeyboard(getContext(), inputEditText); });
 
@@ -190,12 +215,13 @@ public class ListFragment extends Fragment {
         // 오늘 날짜를 선택한 상태로 시작
         materialCalendarView.setSelectedDate(CalendarDay.today());
         // 날짜 클릭 이벤트
+
         materialCalendarView.setOnDateChangedListener((MaterialCalendarView materialCalendarView, CalendarDay date, boolean b) -> {
             int Year = date.getYear();
             int Month = date.getMonth() + 1;
             int Day = date.getDay();
 
-            String selectedDate;
+            //String selectedDate;
             if(Day < 10) {
                 selectedDate = Year + "-" + Month + "-0" + Day;
             } else {
@@ -206,6 +232,18 @@ public class ListFragment extends Fragment {
         });
 
         Log.d(TAG, "onCreateView: CALENDAR VIEW END");
+    }
+
+    // DB 에 들어갈 날짜 가져오기
+    private String getInputDate() {
+        //날짜 가져오기
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd E HH:mm:ss", Locale.KOREA);
+        String getInputDate = date_format.format(date);
+
+        Log.d(TAG, "getInputDate: " + getInputDate);
+
+        return getInputDate;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

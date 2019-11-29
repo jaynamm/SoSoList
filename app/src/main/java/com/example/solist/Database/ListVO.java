@@ -11,11 +11,11 @@ public class ListVO {
 
     private String contents;
 
-    private String status;
+    private int status;
 
     private String writeDate;
 
-    public ListVO(String contents, String status, String writeDate) {
+    public ListVO(String contents, int status, String writeDate) {
         this.contents = contents;
         this.status = status;
         this.writeDate = writeDate;
@@ -37,11 +37,11 @@ public class ListVO {
         this.contents = contents;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

@@ -15,8 +15,8 @@ public interface ListDAO {
     @Query("SELECT * FROM LIST_TABLE ORDER BY ID ASC")
     LiveData<List<ListVO>> getAll();
 
-    @Query("SELECT * FROM LIST_TABLE WHERE writeDate LIKE :writeDate ")
-    LiveData<List<ListVO>> getListByWriteDate(String writeDate);
+    @Query("SELECT * FROM LIST_TABLE WHERE status = 1")
+    LiveData<List<ListVO>> getUnfinishedData();
 
     @Insert
     void insert(ListVO listVO);

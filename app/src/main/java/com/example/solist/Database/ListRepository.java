@@ -2,6 +2,7 @@ package com.example.solist.Database;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -9,13 +10,16 @@ import java.util.List;
 
 public class ListRepository {
 
+    private static final String TAG = "ListRepository";
     private ListDAO listDAO;
     private LiveData<List<ListVO>> allLists;
+    private LiveData<List<ListVO>> allUnfinishedLists;
 
     public ListRepository(Application application) {
         ListDatabase database = ListDatabase.getInstance(application);
         listDAO = database.listDAO();
         allLists = listDAO.getAll();
+        allUnfinishedLists = listDAO.getUnfinishedData();
     }
 
     public void insert(ListVO listVO) {
@@ -36,6 +40,7 @@ public class ListRepository {
 
     public LiveData<List<ListVO>> getAllLists() { return allLists; }
 
+    public LiveData<List<ListVO>> getUnfinishedData() { return allUnfinishedLists; }
 
     private static class InsertListAsyncTask extends AsyncTask<ListVO, Void, Void> {
         private ListDAO listDAO;
