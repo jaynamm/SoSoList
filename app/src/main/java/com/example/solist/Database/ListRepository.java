@@ -5,6 +5,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
+
+import com.example.solist.ViewModel.ListViewModel;
 
 import java.util.List;
 
@@ -15,11 +19,21 @@ public class ListRepository {
     private LiveData<List<ListVO>> allLists;
     private LiveData<List<ListVO>> allUnfinishedLists;
 
+    private MutableLiveData<String> getDate = new MutableLiveData<>();
+
+    private LiveData<List<ListVO>> getListForDate = Transformations.switchMap(getDate, date ->
+            listDAO.getListsForDate(date));
+
     public ListRepository(Application application) {
         ListDatabase database = ListDatabase.getInstance(application);
         listDAO = database.listDAO();
         allLists = listDAO.getAll();
         allUnfinishedLists = listDAO.getUnfinishedData();
+    }
+
+    public void setSelectedDate(String selectedDate) {
+        Log.d(TAG, "setSelectedDate: date : " + selectedDate);
+        getDate.setValue(selectedDate);
     }
 
     public void insert(ListVO listVO) {
@@ -38,9 +52,21 @@ public class ListRepository {
         new DeleteAllListAsyncTask(listDAO).execute();
     }
 
-    public LiveData<List<ListVO>> getAllLists() { return allLists; }
+    public LiveData<List<ListVO>> getAllLists() {
+        return allLists;
+    }
 
-    public LiveData<List<ListVO>> getUnfinishedData() { return allUnfinishedLists; }
+    public LiveData<List<ListVO>> getUnfinishedData() {
+        return allUnfinishedLists;
+    }
+
+    public LiveData<List<ListVO>> getListsForDate() {
+        return getListForDate;
+    }
+
+
+
+    // 비동기 처리
 
     private static class InsertListAsyncTask extends AsyncTask<ListVO, Void, Void> {
         private ListDAO listDAO;

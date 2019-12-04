@@ -113,6 +113,8 @@ public class HomeFragment extends Fragment {
         // LiveData 를 통해서 자동으로 리스트를 갱신시켜준다.
         listViewModel.getUnfinishedData().observe(this, listVOS -> adapter.setLists(listVOS) );
 
+
+
         return layout;
     }
 

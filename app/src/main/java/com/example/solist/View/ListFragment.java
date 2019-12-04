@@ -36,6 +36,7 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 
@@ -131,7 +132,17 @@ public class ListFragment extends Fragment {
         // listViewModel 을 가져온다.
         listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
         // LiveData 를 통해서 자동으로 리스트를 갱신시켜준다.
-        listViewModel.getAllLists().observe(this, listVOS -> adapter.setLists(listVOS) );
+        // 모든 리스트 가져오는 observe()
+        //listViewModel.getAllLists().observe(this, listVOS -> adapter.setLists(listVOS) );
+
+        // 현재 날짜 세팅
+        selectedDate = getInputDate();
+        // 현재 날짜를 넣어준다. 초기에 현재 날짜로 리스트 검색
+        listViewModel.setDate(selectedDate);
+        listViewModel.getAllListsForDate().observe(this, listVOS -> {
+            Log.d(TAG, "onCreateView: " + listVOS);
+            adapter.setLists(listVOS);
+        });
 
         // 왼쪽이나 오른쪽으로 슬라이드를 하게되면 삭제가 된다.
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -156,6 +167,7 @@ public class ListFragment extends Fragment {
             listViewModel.insert(listVO);
             inputEditText.setText("");
             inputEditText.clearFocus();
+
             onHideKeyboard(getContext(), inputEditText);
         });
 
@@ -222,12 +234,8 @@ public class ListFragment extends Fragment {
             int Day = date.getDay();
 
             //String selectedDate;
-            if(Day < 10) {
-                selectedDate = Year + "-" + Month + "-0" + Day;
-            } else {
-                selectedDate = Year + "-" + Month + "-" + Day;
-            }
-
+            selectedDate = Year + "-" + Month + "-" + Day;
+            listViewModel.setDate(selectedDate);
             Toast.makeText(getContext(), selectedDate, Toast.LENGTH_SHORT).show();
         });
 
@@ -237,13 +245,18 @@ public class ListFragment extends Fragment {
     // DB 에 들어갈 날짜 가져오기
     private String getInputDate() {
         //날짜 가져오기
-        Date date = new Date(System.currentTimeMillis());
-        SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd E HH:mm:ss", Locale.KOREA);
-        String getInputDate = date_format.format(date);
+        Calendar cal = new GregorianCalendar();
+        String Today;
 
-        Log.d(TAG, "getInputDate: " + getInputDate);
+        int year = cal.get(cal.YEAR);
+        int month = cal.get(cal.MONTH);
+        int day = cal.get(cal.DATE);
 
-        return getInputDate;
+        Today = year + "-" + (month+1) + "-" + day;
+
+        Log.d(TAG, "getInputDate: " + Today);
+
+        return Today;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

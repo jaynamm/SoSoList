@@ -1,6 +1,7 @@
 package com.example.solist.Database;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -17,6 +18,9 @@ public interface ListDAO {
 
     @Query("SELECT * FROM LIST_TABLE WHERE status = 1")
     LiveData<List<ListVO>> getUnfinishedData();
+
+    @Query("SELECT * FROM LIST_TABLE WHERE writeDate = :selectedDate")
+    LiveData<List<ListVO>> getListsForDate(String selectedDate);
 
     @Insert
     void insert(ListVO listVO);
