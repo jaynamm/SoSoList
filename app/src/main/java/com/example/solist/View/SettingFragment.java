@@ -11,8 +11,16 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.example.solist.R;
+
+import org.eazegraph.lib.charts.BarChart;
+import org.eazegraph.lib.charts.ValueLineChart;
+import org.eazegraph.lib.charts.VerticalBarChart;
+import org.eazegraph.lib.models.BarModel;
+import org.eazegraph.lib.models.ValueLinePoint;
+import org.eazegraph.lib.models.ValueLineSeries;
 
 
 /**
@@ -66,11 +74,69 @@ public class SettingFragment extends Fragment {
         }
     }
 
+    LinearLayout layout;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setting, container, false);
+
+        layout = (LinearLayout) inflater.inflate(R.layout.fragment_setting, container, false);
+
+        ValueLineChart mCubicValueLineChart = (ValueLineChart) layout.findViewById(R.id.cubiclinechart);
+
+        mCubicValueLineChart.clearChart();
+        mCubicValueLineChart.setShowIndicator(false);
+        ValueLineSeries series = new ValueLineSeries();
+        series.setColor(0xFF56B7F1);
+
+        series.addPoint(new ValueLinePoint("Jan", 2.4f));
+        series.addPoint(new ValueLinePoint("Feb", 3.4f));
+        series.addPoint(new ValueLinePoint("Mar", .4f));
+        series.addPoint(new ValueLinePoint("Apr", 1.2f));
+        series.addPoint(new ValueLinePoint("Mai", 2.6f));
+        series.addPoint(new ValueLinePoint("Jun", 1.0f));
+        series.addPoint(new ValueLinePoint("Jul", 3.5f));
+        series.addPoint(new ValueLinePoint("Aug", 2.4f));
+        series.addPoint(new ValueLinePoint("Sep", 2.4f));
+        series.addPoint(new ValueLinePoint("Oct", 3.4f));
+        series.addPoint(new ValueLinePoint("Nov", .4f));
+        series.addPoint(new ValueLinePoint("Dec", 1.3f));
+
+        mCubicValueLineChart.addSeries(series);
+        mCubicValueLineChart.startAnimation();
+
+        BarChart mBarChart = (BarChart) layout.findViewById(R.id.barchart);
+
+        mBarChart.addBar(new BarModel(2.3f, 0xFF123456));
+        mBarChart.addBar(new BarModel(2.f,  0xFF343456));
+        mBarChart.addBar(new BarModel(3.3f, 0xFF563456));
+        mBarChart.addBar(new BarModel(1.1f, 0xFF873F56));
+        mBarChart.addBar(new BarModel(2.7f, 0xFF56B7F1));
+        mBarChart.addBar(new BarModel(2.f,  0xFF343456));
+        mBarChart.addBar(new BarModel(0.4f, 0xFF1FF4AC));
+        mBarChart.addBar(new BarModel(4.f,  0xFF1BA4E6));
+
+        mBarChart.startAnimation();
+
+        // barchart 출력하기
+        VerticalBarChart mVerticalBarChart = (VerticalBarChart) layout.findViewById(R.id.verticalbarchart);
+
+        mVerticalBarChart.clearChart();
+
+        mVerticalBarChart.addBar(new BarModel(2.3f, 0xFF123456));
+        mVerticalBarChart.addBar(new BarModel(2.f,  0xFF343456));
+        mVerticalBarChart.addBar(new BarModel(3.3f, 0xFF563456));
+        mVerticalBarChart.addBar(new BarModel(1.1f, 0xFF873F56));
+        mVerticalBarChart.addBar(new BarModel(2.7f, 0xFF56B7F1));
+        mVerticalBarChart.addBar(new BarModel(2.f,  0xFF343456));
+        mVerticalBarChart.addBar(new BarModel(0.4f, 0xFF1FF4AC));
+        mVerticalBarChart.addBar(new BarModel(4.f,  0xFF1BA4E6));
+
+        mVerticalBarChart.startAnimation();
+
+
+        return layout;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

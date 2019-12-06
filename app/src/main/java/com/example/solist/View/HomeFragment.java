@@ -2,6 +2,7 @@ package com.example.solist.View;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -22,6 +23,10 @@ import com.example.solist.Adapter.HomeAdapter;
 import com.example.solist.Adapter.ListAdapter;
 import com.example.solist.R;
 import com.example.solist.ViewModel.ListViewModel;
+
+import org.eazegraph.lib.charts.BarChart;
+import org.eazegraph.lib.charts.VerticalBarChart;
+import org.eazegraph.lib.models.BarModel;
 
 
 /**
@@ -111,9 +116,7 @@ public class HomeFragment extends Fragment {
         // listViewModel 을 가져온다.
         listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
         // LiveData 를 통해서 자동으로 리스트를 갱신시켜준다.
-        listViewModel.getUnfinishedData().observe(this, listVOS -> adapter.setLists(listVOS) );
-
-
+        listViewModel.getUnfinishedData().observe(this, listVOS -> adapter.setLists(listVOS));
 
         return layout;
     }

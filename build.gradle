@@ -4,11 +4,15 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+        // 그래프
+        maven { url "https://maven.google.com"}
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
-        
+
+        // 그래프
+        classpath 'com.google.gms:google-services:4.3.2'
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
@@ -23,6 +27,8 @@ allprojects {
         jcenter()
         // material calendar set
         maven { url 'https://jitpack.io' }
+        // 그래프
+        maven { url "https://maven.google.com" }
     }
 }
 

@@ -1,14 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".View.SettingFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="SETTING" />
 
-</FrameLayout>
+    <org.eazegraph.lib.charts.ValueLineChart xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cubiclinechart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:egCurveSmoothness="0.4"
+        app:egLegendHeight="40dp"
+        app:egShowStandardValue="true"
+        app:egUseCubic="true"
+        app:egUseOverlapFill="true" />
+
+    <org.eazegraph.lib.charts.BarChart xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/barchart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:padding="10dp"
+        app:egBarWidth="20dp"
+        app:egFixedBarWidth="true"
+        app:egLegendHeight="40dp" />
+
+    <org.eazegraph.lib.charts.VerticalBarChart
+        android:id="@+id/verticalbarchart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        app:egBarWidth="25dp"
+        app:egEnableScroll="true"
+        app:egLegendColor="#FF123456"
+        app:egLegendHeight="0dp"
+        app:egShowBarLabel="true"
+        app:egShowDecimal="true"
+        app:egShowValues="true"
+        app:egValueUnit="%" />
+
+</LinearLayout>
