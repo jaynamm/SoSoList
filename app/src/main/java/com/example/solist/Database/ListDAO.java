@@ -16,8 +16,8 @@ public interface ListDAO {
     @Query("SELECT * FROM LIST_TABLE ORDER BY ID ASC")
     LiveData<List<ListVO>> getAll();
 
-    @Query("SELECT * FROM LIST_TABLE WHERE status = 1")
-    LiveData<List<ListVO>> getUnfinishedData();
+    @Query("SELECT * FROM LIST_TABLE WHERE writeDate = :today and status = 1")
+    LiveData<List<ListVO>> getUnfinishedData(String today);
 
     @Query("SELECT * FROM LIST_TABLE WHERE writeDate = :selectedDate")
     LiveData<List<ListVO>> getListsForDate(String selectedDate);

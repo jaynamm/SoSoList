@@ -10,6 +10,8 @@ import androidx.lifecycle.Transformations;
 
 import com.example.solist.ViewModel.ListViewModel;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ListRepository {
@@ -28,7 +30,7 @@ public class ListRepository {
         ListDatabase database = ListDatabase.getInstance(application);
         listDAO = database.listDAO();
         allLists = listDAO.getAll();
-        allUnfinishedLists = listDAO.getUnfinishedData();
+        allUnfinishedLists = listDAO.getUnfinishedData(getInputDate());
     }
 
     public void setSelectedDate(String selectedDate) {
@@ -64,6 +66,22 @@ public class ListRepository {
         return getListForDate;
     }
 
+    // DB 에 들어갈 날짜 가져오기
+    private String getInputDate() {
+        //날짜 가져오기
+        Calendar cal = new GregorianCalendar();
+        String Today;
+
+        int year = cal.get(cal.YEAR);
+        int month = cal.get(cal.MONTH);
+        int day = cal.get(cal.DATE);
+
+        Today = year + "-" + (month+1) + "-" + day;
+
+        Log.d(TAG, "getInputDate: " + Today);
+
+        return Today;
+    }
 
 
     // 비동기 처리

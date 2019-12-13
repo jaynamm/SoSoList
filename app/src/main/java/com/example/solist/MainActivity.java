@@ -12,7 +12,7 @@ import com.example.solist.View.SettingFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ViewPager mViewPager;
+    public ViewPager mViewPager;
     private PagerAdapter mAdapter;
 
     @Override

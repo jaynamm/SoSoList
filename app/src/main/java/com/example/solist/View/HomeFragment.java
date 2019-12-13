@@ -2,9 +2,16 @@ package com.example.solist.View;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -12,21 +19,16 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.method.ScrollingMovementMethod;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.example.solist.Adapter.HomeAdapter;
-import com.example.solist.Adapter.ListAdapter;
+import com.example.solist.MainActivity;
 import com.example.solist.R;
 import com.example.solist.ViewModel.ListViewModel;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
-import org.eazegraph.lib.charts.BarChart;
-import org.eazegraph.lib.charts.VerticalBarChart;
-import org.eazegraph.lib.models.BarModel;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 
 /**
@@ -42,6 +44,7 @@ public class HomeFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "HomeFragment";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -80,23 +83,22 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private LinearLayout layout;
+    private RelativeLayout layout;
     private ListViewModel listViewModel;
     private DividerItemDecoration dividerItemDecoration;
+    private AdView mAdView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        layout = (LinearLayout) inflater.inflate(R.layout.fragment_home, container, false);
+        layout = (RelativeLayout) inflater.inflate(R.layout.fragment_home, container, false);
 
         TextView getDataView = (TextView) layout.findViewById(R.id.get_data_view);
         getDataView.setMovementMethod(new ScrollingMovementMethod());
 
         listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
-        listViewModel.getAllLists().observe(this, listVOS -> {
-            getDataView.setText(listVOS.toString());
-        });
+        listViewModel.getAllLists().observe(this, listVOS -> getDataView.setText(listVOS.toString()));
 
         // recycler view set
         RecyclerView recyclerView = layout.findViewById(R.id.list_recycler_view_home);
@@ -118,7 +120,38 @@ public class HomeFragment extends Fragment {
         // LiveData 를 통해서 자동으로 리스트를 갱신시켜준다.
         listViewModel.getUnfinishedData().observe(this, listVOS -> adapter.setLists(listVOS));
 
+        ImageButton moveListFragment = (ImageButton) layout.findViewById(R.id.move_fragment_button);
+        moveListFragment.setOnClickListener(v -> {
+            // 버튼을 누르면 viewpager 에서 item 을 가져와서 보여준다.
+            ((MainActivity) getActivity()).mViewPager.setCurrentItem(1);
+        });
+
+        // Admob 광고 추가
+        MobileAds.initialize(getContext(), initializationStatus -> {
+        });
+
+        mAdView = layout.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         return layout;
+    }
+
+    // DB 에 들어갈 날짜 가져오기
+    private String getInputDate() {
+        //날짜 가져오기
+        Calendar cal = new GregorianCalendar();
+        String Today;
+
+        int year = cal.get(cal.YEAR);
+        int month = cal.get(cal.MONTH);
+        int day = cal.get(cal.DATE);
+
+        Today = year + "-" + (month + 1) + "-" + day;
+
+        Log.d(TAG, "getInputDate: " + Today);
+
+        return Today;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
